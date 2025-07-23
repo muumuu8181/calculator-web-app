@@ -3093,13 +3093,13 @@ ${testText}`;
                     <div class="todo-item ${todo.completed ? 'completed' : ''} ${todo.priority}" data-todo-id="${todo.id}">
                         <input type="checkbox" class="todo-checkbox" 
                                ${todo.completed ? 'checked' : ''} 
-                               onchange="webApp.toggleTodo('${todo.id}')">
+                               onchange="if(webApp) webApp.toggleTodo('${todo.id}')">
                         <span class="todo-text">${todo.text}</span>
                         <span class="todo-priority-badge ${todo.priority}">${
                             todo.priority === 'high' ? '高' : 
                             todo.priority === 'medium' ? '中' : '低'
                         }</span>
-                        <button class="todo-delete-btn" onclick="webApp.deleteTodo('${todo.id}')">削除</button>
+                        <button class="todo-delete-btn" onclick="if(webApp) webApp.deleteTodo('${todo.id}')">削除</button>
                     </div>
                 `).join('');
 
@@ -3242,7 +3242,7 @@ ${testText}`;
                         <div class="memo-body">
                             <div class="memo-header">
                                 <h4 class="memo-title">${memo.title || '無題のメモ'}</h4>
-                                <button class="memo-delete-btn" onclick="webApp.deleteMemo('${memo.id}')">削除</button>
+                                <button class="memo-delete-btn" onclick="if(webApp) webApp.deleteMemo('${memo.id}')">削除</button>
                             </div>
                             <div class="memo-content">${memo.content}</div>
                             <small class="memo-timestamp">${new Date(memo.timestamp).toLocaleString('ja-JP')}</small>
@@ -3570,12 +3570,22 @@ ${testText}`;
 
         // グローバル関数 - TODOアプリ用
         function addTodo() {
-            webApp.addTodo();
+            if (webApp) {
+                webApp.addTodo();
+            } else {
+                console.error('WebApp not initialized');
+                alert('アプリの初期化が完了していません。ページを再読み込みしてください。');
+            }
         }
 
         // グローバル関数 - メモアプリ用
         function saveMemo() {
-            webApp.saveMemo();
+            if (webApp) {
+                webApp.saveMemo();
+            } else {
+                console.error('WebApp not initialized');
+                alert('アプリの初期化が完了していません。ページを再読み込みしてください。');
+            }
         }
 
         // アプリケーション開始
