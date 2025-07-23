@@ -1448,7 +1448,7 @@
     <div id="debugLogContainer" class="debug-log-container">
         <div class="debug-log-header">
             <span>デバッグログ</span>
-            <span id="versionInfo" style="color: #0066cc; font-size: 14px; font-weight: bold; margin-left: 15px; padding: 2px 6px; background: #e6f3ff; border-radius: 3px;">v2025.07.20-template</span>
+            <span id="versionInfo" style="color: #0066cc; font-size: 14px; font-weight: bold; margin-left: 15px; padding: 2px 6px; background: #e6f3ff; border-radius: 3px;">v2025.07.23-v1-dragdrop</span>
             <div class="debug-log-controls">
                 <button id="clearLogBtn" class="debug-btn">クリア</button>
                 <button id="copyLogBtn" class="debug-btn">コピー</button>
@@ -1457,8 +1457,6 @@
                 <button id="firebaseToggleBtn" class="debug-btn">Firebase: ON</button>
                 <!-- テストボタン追加 -->
                 <button onclick="sayHello()" class="debug-btn" style="background-color: #ff9800;">👋 Hello</button>
-                <button onclick="sayGoodMorning()" class="debug-btn" style="background-color: #2196F3;">🌅 Good Morning</button>
-                <button onclick="sayGoodAfternoon()" class="debug-btn" style="background-color: #4CAF50;">☀️ Good Afternoon</button>
             </div>
         </div>
         <div id="debugLogArea" class="debug-log-area"></div>
@@ -3456,6 +3454,108 @@ ${testText}`;
                     const v = c === 'x' ? r : (r & 0x3 | 0x8);
                     return v.toString(16);
                 });
+            }
+
+            // ログファイル保存機能（原則3対応）
+            saveLogToFile() {
+                try {
+                    const logData = {
+                        test_type: "v1_frontend_data_test",
+                        description: "v1版フロントエンドからの実際のTODO・メモデータテスト",
+                        todos: this.todos,
+                        memos: this.memos,
+                        currentAccount: this.currentAccount,
+                        debugLog: this.debugLog.slice(-10), // 最新10件のデバッグログ
+                        timestamp: new Date().toISOString()
+                    };
+
+                    // サーバーのログ生成APIにPOSTリクエスト送信
+                    fetch('http://localhost:3001/api/generate-log', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(logData)
+                    })
+                    .then(response => response.json())
+                    .then(result => {
+                        this.log('✅ ログファイル生成成功', result);
+                        alert(`ログファイルが生成されました: ${result.filename}`);
+                    })
+                    .catch(error => {
+                        this.log('❌ ログファイル生成エラー', { error: error.message });
+                        console.error('ログファイル生成エラー:', error);
+                    });
+
+                } catch (error) {
+                    this.log('❌ ログ保存エラー', { error: error.message });
+                    alert('ログ保存中にエラーが発生しました: ' + error.message);
+                }
+            }
+
+            setupDebugLog() {
+                this.log('デバッグログシステムを初期化');
+                
+                document.getElementById('clearLogBtn').addEventListener('click', () => {
+                    this.clearDebugLog();
+                });
+                
+                document.getElementById('copyLogBtn').addEventListener('click', () => {
+                    this.copyDebugLog();
+                });
+                
+                document.getElementById('saveLogToFileBtn').addEventListener('click', () => {
+                    this.saveLogToFile();
+                });
+                
+                document.getElementById('resetDataBtn').addEventListener('click', () => {
+                    this.resetAllData();
+                });
+                
+                document.getElementById('firebaseToggleBtn').addEventListener('click', () => {
+                    this.toggleFirebase();
+                });
+            }
+
+            clearDebugLog() {
+                this.debugLog = [];
+                this.updateDebugLogDisplay();
+                this.log('デバッグログをクリアしました');
+            }
+
+            copyDebugLog() {
+                const logText = this.debugLog.map(entry => 
+                    `[${entry.timestamp}] ${entry.message}${entry.data ? ' | ' + JSON.stringify(entry.data) : ''}`
+                ).join('\n');
+                
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(logText).then(() => {
+                        this.log('✅ ログをクリップボードにコピーしました');
+                        alert('ログをクリップボードにコピーしました');
+                    }).catch(err => {
+                        this.log('❌ クリップボードコピー失敗', { error: err.message });
+                        alert('クリップボードにコピーできませんでした');
+                    });
+                } else {
+                    this.log('❌ クリップボードAPI非対応');
+                    alert('クリップボード機能が利用できません');
+                }
+            }
+
+            updateDebugLogDisplay() {
+                const debugLogArea = document.getElementById('debugLogArea');
+                if (!debugLogArea) return;
+
+                const logHTML = this.debugLog.slice(-20).map(entry => `
+                    <div class="debug-log-entry">
+                        <div class="debug-log-timestamp">[${entry.timestamp}]</div>
+                        <div class="debug-log-message">${entry.message}</div>
+                        ${entry.data ? `<div class="debug-log-data">${JSON.stringify(entry.data)}</div>` : ''}
+                    </div>
+                `).join('');
+                
+                debugLogArea.innerHTML = logHTML;
+                debugLogArea.scrollTop = debugLogArea.scrollHeight;
             }
         }
 
