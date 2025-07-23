@@ -1321,25 +1321,31 @@
                 this.setupDebugLog();
             }
 
-            // localStorage読み込み関数を追加
+            // localStorage読み込み関数を修正 - Firebaseデータ構造と統合
             loadStoredData() {
                 try {
-                    // TODOデータ読み込み
-                    const todoKey = `todos_${this.currentAccount || 'guest'}`;
-                    const storedTodos = localStorage.getItem(todoKey);
-                    if (storedTodos) {
-                        const todoData = JSON.parse(storedTodos);
-                        this.todos = todoData.todos || [];
-                        this.log('TODOデータをlocalStorageから復元', { count: this.todos.length });
-                    }
-                    
-                    // メモデータ読み込み
-                    const memoKey = `memos_${this.currentAccount || 'guest'}`;
-                    const storedMemos = localStorage.getItem(memoKey);
-                    if (storedMemos) {
-                        const memoData = JSON.parse(storedMemos);
-                        this.memos = memoData.memos || [];
-                        this.log('メモデータをlocalStorageから復元', { count: this.memos.length });
+                    // アカウントが変更された場合のみlocalStorageから読み込み
+                    if (!useFirebase || this.currentAccount === 'guest') {
+                        // TODOデータ読み込み
+                        const todoKey = `todos_${this.currentAccount || 'guest'}`;
+                        const storedTodos = localStorage.getItem(todoKey);
+                        if (storedTodos) {
+                            const todoData = JSON.parse(storedTodos);
+                            this.todos = todoData.todos || [];
+                            this.log('TODOデータをlocalStorageから復元', { count: this.todos.length });
+                        }
+                        
+                        // メモデータ読み込み
+                        const memoKey = `memos_${this.currentAccount || 'guest'}`;
+                        const storedMemos = localStorage.getItem(memoKey);
+                        if (storedMemos) {
+                            const memoData = JSON.parse(storedMemos);
+                            this.memos = memoData.memos || [];
+                            this.log('メモデータをlocalStorageから復元', { count: this.memos.length });
+                        }
+                    } else {
+                        // Firebase利用時はFirebaseデータを優先、localStorageはバックアップとして使用
+                        this.log('Firebase利用時のため、localStorageからの復元をスキップ');
                     }
                 } catch (error) {
                     this.log('データ復元エラー', { error: error.message });
@@ -2796,11 +2802,11 @@ ${testText}`;
                     timestamp: new Date().toISOString()
                 };
 
-                // 常にlocalStorageに保存（データ永続化のため）
+                // 常にlocalStorageにバックアップ保存
                 try {
                     const storageKey = `todos_${this.currentAccount || 'guest'}`;
                     localStorage.setItem(storageKey, JSON.stringify(dataToSave));
-                    this.log('TODOデータをlocalStorageに保存', { 
+                    this.log('TODOデータをlocalStorageにバックアップ保存', { 
                         key: storageKey, 
                         todoCount: this.todos.length
                     });
@@ -2809,8 +2815,10 @@ ${testText}`;
                 }
 
                 if (!useFirebase || this.currentAccount === 'guest') {
-                    // localStorage保存のみ
+                    // Firebase未使用時はlocalStorageのみ
+                    this.log('Firebase未使用 - localStorage保存のみ');
                 } else {
+                    // Firebase使用時はFirebaseにメイン保存
                     this.saveTodoDataToFirebase(dataToSave);
                 }
             }
@@ -2928,10 +2936,14 @@ ${testText}`;
                     timestamp: new Date().toISOString()
                 };
 
-                // localStorage保存追加
-                const storageKey = `memos_${this.currentAccount || 'guest'}`;
-                localStorage.setItem(storageKey, JSON.stringify(dataToSave));
-                this.log('メモデータをlocalStorageに保存', { key: storageKey, count: this.memos.length });
+                // 常にlocalStorageにバックアップ保存
+                try {
+                    const storageKey = `memos_${this.currentAccount || 'guest'}`;
+                    localStorage.setItem(storageKey, JSON.stringify(dataToSave));
+                    this.log('メモデータをlocalStorageにバックアップ保存', { key: storageKey, count: this.memos.length });
+                } catch (error) {
+                    console.error('localStorage保存エラー:', error);
+                }
 
                 if (!useFirebase || this.currentAccount === 'guest') {
                     try {
