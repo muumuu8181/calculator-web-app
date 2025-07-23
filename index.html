@@ -657,7 +657,10 @@
 
         <!-- History -->
         <div class="history-container">
-            <div class="history-header">📚 計算履歴</div>
+            <div class="history-header">
+                📚 計算履歴
+                <button onclick="copyAllHistory()" class="debug-btn" style="background-color: #4CAF50; margin-left: 10px;">📋 履歴コピー</button>
+            </div>
             <div id="historyList">
                 <!-- History items will be populated here -->
             </div>
@@ -2272,6 +2275,42 @@ ${testText}`;
                 userAgent: navigator.userAgent
             });
             alert(message + ` (現在の履歴: ${webApp.history.length}件)`);
+        }
+
+        // 履歴全体コピー機能
+        function copyAllHistory() {
+            if (webApp.history.length === 0) {
+                alert('コピーする履歴がありません');
+                return;
+            }
+
+            const historyText = webApp.history.map((item, index) => {
+                return `${index + 1}. ${item.expression} = ${item.result}`;
+            }).join('\n');
+
+            const fullText = `📚 電卓履歴 (${webApp.history.length}件)\n生成日時: ${new Date().toLocaleString('ja-JP')}\n\n${historyText}`;
+
+            webApp.log('履歴全体コピー実行', { 
+                historyCount: webApp.history.length,
+                textLength: fullText.length 
+            });
+
+            // クリップボードAPI使用
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(fullText).then(() => {
+                    webApp.log('✅ 履歴コピー成功');
+                    alert(`✅ ${webApp.history.length}件の履歴をコピーしました！`);
+                }).catch(err => {
+                    webApp.log('❌ クリップボードAPI失敗', { error: err.message });
+                    webApp.showErrorDetails('📋 履歴コピー内容\n\n' + fullText);
+                    alert('クリップボードにコピーできませんでした。下部のテキストエリアから手動でコピーしてください。');
+                });
+            } else {
+                // フォールバック: テキストエリアに表示
+                webApp.showErrorDetails('📋 履歴コピー内容\n\n' + fullText);
+                alert('クリップボード機能が利用できません。下部のテキストエリアから手動でコピーしてください。');
+                webApp.log('❌ クリップボードAPI非対応');
+            }
         }
 
         // アプリケーション開始
