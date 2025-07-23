@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Firebase対応 シンプル電卓アプリ - Google認証・リアルタイム同期・デバッグログ完備">
+    <title>シンプル電卓アプリ</title>
+    <style>
+        :root {
+            --primary-color: #2196F3;
+            --secondary-color: #FF9800;
+            --background-color: #f5f5f5;
+            --surface-color: #ffffff;
+            --text-color: #333333;
+            --border-color: #e0e0e0;
+            --shadow: 0 2px 4px rgba(0,0,0,0.1);
+            --calc-bg: #1a1a1a;
+            --calc-display: #000;
+            --calc-button: #333;
+            --calc-button-hover: #555;
+            --calc-number: #666;
+            --calc-operator: #ff9500;
+            --calc-equals: #ff9500;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --background-color: #121212;
+                --surface-color: #1e1e1e;
+                --text-color: #e0e0e0;
+                --border-color: #333333;
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        header {
+            background-color: var(--surface-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+        }
+
+        .account-selector {
+            margin-bottom: 15px;
+        }
+
+        /* Calculator Main Container */
+        .calculator-container {
+            background-color: var(--calc-bg);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            margin-bottom: 20px;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Calculator Display */
+        .calculator-display {
+            background-color: var(--calc-display);
+            color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: right;
+            font-family: 'Courier New', monospace;
+            min-height: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .display-expression {
+            font-size: 16px;
+            color: #888;
+            min-height: 20px;
+            word-break: break-all;
+        }
+
+        .display-result {
+            font-size: 36px;
+            font-weight: bold;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+        }
+
+        /* Calculator Button Grid */
+        .calculator-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .calc-button {
+            background-color: var(--calc-button);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 70px;
+            height: 70px;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+        }
+
+        .calc-button:hover {
+            background-color: var(--calc-button-hover);
+            transform: scale(1.05);
+        }
+
+        .calc-button:active {
+            transform: scale(0.95);
+        }
+
+        /* Button Types */
+        .calc-button.number {
+            background-color: var(--calc-number);
+        }
+
+        .calc-button.operator {
+            background-color: var(--calc-operator);
+        }
+
+        .calc-button.equals {
+            background-color: var(--calc-equals);
+        }
+
+        .calc-button.clear {
+            background-color: #666;
+        }
+
+        .calc-button.zero {
+            border-radius: 35px;
+            grid-column: span 2;
+            width: auto;
+        }
+
+        /* History Section */
+        .history-container {
+            background-color: var(--surface-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .history-header {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+
+        .history-item {
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-color);
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-expression {
+            color: #666;
+        }
+
+        .history-result {
+            font-weight: bold;
+            float: right;
+        }
+
+        .debug-btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            background-color: #555;
+            color: white;
+            font-size: 12px;
+            cursor: pointer;
+            margin-right: 5px;
+            transition: background-color 0.2s;
+        }
+
+        .debug-btn:hover {
+            background-color: #666;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .calculator-container {
+                padding: 20px;
+            }
+
+            .calc-button {
+                width: 60px;
+                height: 60px;
+                font-size: 20px;
+            }
+
+            .display-result {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="account-selector" id="accountSelector">
+                <button id="googleSignInBtn" class="debug-btn" style="background-color: #4285f4; color: white;">Googleでログイン</button>
+            </div>
+        </header>
+
+        <!-- Calculator Main -->
+        <div class="calculator-container">
+            <!-- Display -->
+            <div class="calculator-display">
+                <div class="display-expression" id="displayExpression"></div>
+                <div class="display-result" id="displayResult">0</div>
+            </div>
+
+            <!-- Button Grid -->
+            <div class="calculator-buttons">
+                <!-- Row 1 -->
+                <button class="calc-button clear" onclick="clearAll()">AC</button>
+                <button class="calc-button clear" onclick="clearEntry()">C</button>
+                <button class="calc-button operator" onclick="inputOperator('/')" data-value="/">÷</button>
+                <button class="calc-button operator" onclick="inputOperator('*')" data-value="*">×</button>
+
+                <!-- Row 2 -->
+                <button class="calc-button number" onclick="inputNumber('7')" data-value="7">7</button>
+                <button class="calc-button number" onclick="inputNumber('8')" data-value="8">8</button>
+                <button class="calc-button number" onclick="inputNumber('9')" data-value="9">9</button>
+                <button class="calc-button operator" onclick="inputOperator('-')" data-value="-">-</button>
+
+                <!-- Row 3 -->
+                <button class="calc-button number" onclick="inputNumber('4')" data-value="4">4</button>
+                <button class="calc-button number" onclick="inputNumber('5')" data-value="5">5</button>
+                <button class="calc-button number" onclick="inputNumber('6')" data-value="6">6</button>
+                <button class="calc-button operator" onclick="inputOperator('+')" data-value="+">+</button>
+
+                <!-- Row 4 -->
+                <button class="calc-button number" onclick="inputNumber('1')" data-value="1">1</button>
+                <button class="calc-button number" onclick="inputNumber('2')" data-value="2">2</button>
+                <button class="calc-button number" onclick="inputNumber('3')" data-value="3">3</button>
+                <button class="calc-button equals" onclick="calculate()" rowspan="2">=</button>
+
+                <!-- Row 5 -->
+                <button class="calc-button number zero" onclick="inputNumber('0')" data-value="0">0</button>
+                <button class="calc-button number" onclick="inputDecimal()" data-value=".">.</button>
+            </div>
+        </div>
+
+        <!-- History -->
+        <div class="history-container">
+            <div class="history-header">📚 計算履歴</div>
+            <div id="historyList">
+                <div style="color: #666; text-align: center; padding: 20px;">履歴がありません</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+
+    <script>
+        // Firebase設定
+        const firebaseConfig = {
+            apiKey: "AIzaSyA5PXKChizYDCXF_GJ4KL6Ylq9K5hCPXWE",
+            authDomain: "shares-b1b97.firebaseapp.com",
+            databaseURL: "https://shares-b1b97-default-rtdb.firebaseio.com",
+            projectId: "shares-b1b97",
+            storageBucket: "shares-b1b97.firebasestorage.app",
+            messagingSenderId: "38311063248",
+            appId: "1:38311063248:web:0d2d5726d12b305b24b8d5"
+        };
+
+        // Firebase初期化
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const auth = firebase.auth();
+        const dataRef = database.ref('calculator-data');
+
+        // 電卓アプリケーション
+        class CalculatorApp {
+            constructor() {
+                this.currentAccount = 'guest';
+                this.currentUser = null;
+                this.currentDisplay = '0';
+                this.currentExpression = '';
+                this.operator = null;
+                this.previousValue = null;
+                this.waitingForOperand = false;
+                this.history = [];
+                
+                this.setupAuth();
+                this.init();
+                this.setupKeyboardEvents();
+            }
+
+            init() {
+                this.updateDisplay();
+                this.updateAccountUI();
+                this.renderHistory();
+                console.log('電卓アプリ初期化完了');
+            }
+
+            setupAuth() {
+                auth.onAuthStateChanged((user) => {
+                    this.currentUser = user;
+                    if (user) {
+                        this.currentAccount = user.uid;
+                        this.updateAccountUI(user);
+                        this.loadHistoryFromFirebase();
+                    } else {
+                        this.currentAccount = 'guest';
+                        this.updateAccountUI(null);
+                        this.loadHistoryFromLocalStorage();
+                    }
+                });
+
+                const signInBtn = document.getElementById('googleSignInBtn');
+                if (signInBtn) {
+                    signInBtn.addEventListener('click', () => {
+                        this.signInWithGoogle();
+                    });
+                }
+            }
+
+            signInWithGoogle() {
+                const provider = new firebase.auth.GoogleAuthProvider();
+                auth.signInWithPopup(provider)
+                    .then((result) => {
+                        console.log('Google認証成功:', result.user.email);
+                    })
+                    .catch((error) => {
+                        console.error('Google認証エラー:', error);
+                        alert('認証に失敗しました: ' + error.message);
+                    });
+            }
+
+            updateAccountUI(user) {
+                const accountSelector = document.getElementById('accountSelector');
+                
+                if (user) {
+                    accountSelector.innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="color: var(--primary-color); font-weight: bold;">
+                                ✅ ${user.displayName || user.email}
+                            </span>
+                            <button onclick="calculatorApp.signOut()" class="debug-btn" style="background-color: #dc3545;">ログアウト</button>
+                        </div>
+                    `;
+                } else {
+                    accountSelector.innerHTML = `
+                        <button onclick="calculatorApp.signInWithGoogle()" class="debug-btn" style="background-color: #4285f4; color: white;">Googleでログイン</button>
+                    `;
+                }
+            }
+
+            signOut() {
+                auth.signOut();
+            }
+
+            updateDisplay() {
+                const expressionEl = document.getElementById('displayExpression');
+                const resultEl = document.getElementById('displayResult');
+                
+                expressionEl.textContent = this.currentExpression;
+                resultEl.textContent = this.currentDisplay;
+            }
+
+            inputNumber(num) {
+                if (this.waitingForOperand) {
+                    this.currentDisplay = num;
+                    this.waitingForOperand = false;
+                } else {
+                    this.currentDisplay = this.currentDisplay === '0' ? num : this.currentDisplay + num;
+                }
+                this.updateDisplay();
+            }
+
+            inputDecimal() {
+                if (this.waitingForOperand) {
+                    this.currentDisplay = "0.";
+                    this.waitingForOperand = false;
+                } else if (this.currentDisplay.indexOf('.') === -1) {
+                    this.currentDisplay += '.';
+                }
+                this.updateDisplay();
+            }
+
+            inputOperator(nextOperator) {
+                const inputValue = parseFloat(this.currentDisplay);
+
+                if (this.previousValue === null) {
+                    this.previousValue = inputValue;
+                } else if (this.operator) {
+                    const currentValue = this.previousValue || 0;
+                    const result = this.performCalculation(this.operator, currentValue, inputValue);
+                    this.currentDisplay = String(result);
+                    this.previousValue = result;
+                }
+
+                this.waitingForOperand = true;
+                this.operator = nextOperator;
+                this.currentExpression = `${this.previousValue} ${this.getOperatorSymbol(nextOperator)}`;
+                this.updateDisplay();
+            }
+
+            calculate() {
+                const inputValue = parseFloat(this.currentDisplay);
+
+                if (this.previousValue !== null && this.operator) {
+                    const result = this.performCalculation(this.operator, this.previousValue, inputValue);
+                    const expression = `${this.previousValue} ${this.getOperatorSymbol(this.operator)} ${inputValue}`;
+                    
+                    this.addToHistory(expression, result);
+                    
+                    this.currentDisplay = String(result);
+                    this.currentExpression = `${expression} =`;
+                    this.previousValue = null;
+                    this.operator = null;
+                    this.waitingForOperand = true;
+                    
+                    this.updateDisplay();
+                }
+            }
+
+            performCalculation(operator, firstOperand, secondOperand) {
+                switch (operator) {
+                    case '+':
+                        return firstOperand + secondOperand;
+                    case '-':
+                        return firstOperand - secondOperand;
+                    case '*':
+                        return firstOperand * secondOperand;
+                    case '/':
+                        if (secondOperand === 0) {
+                            alert('ゼロで割ることはできません');
+                            return firstOperand;
+                        }
+                        return firstOperand / secondOperand;
+                    default:
+                        return secondOperand;
+                }
+            }
+
+            getOperatorSymbol(operator) {
+                const symbols = {
+                    '+': '+',
+                    '-': '-',  
+                    '*': '×',
+                    '/': '÷'
+                };
+                return symbols[operator] || operator;
+            }
+
+            clearAll() {
+                this.currentDisplay = '0';
+                this.currentExpression = '';
+                this.operator = null;
+                this.previousValue = null;
+                this.waitingForOperand = false;
+                this.updateDisplay();
+            }
+
+            clearEntry() {
+                this.currentDisplay = '0';
+                this.updateDisplay();
+            }
+
+            addToHistory(expression, result) {
+                const historyItem = {
+                    expression: expression,
+                    result: String(result),
+                    timestamp: new Date().toISOString()
+                };
+
+                this.history.unshift(historyItem);
+                
+                if (this.history.length > 50) {
+                    this.history = this.history.slice(0, 50);
+                }
+
+                this.renderHistory();
+                this.saveHistory();
+            }
+
+            renderHistory() {
+                const historyList = document.getElementById('historyList');
+                if (this.history.length === 0) {
+                    historyList.innerHTML = '<div style="color: #666; text-align: center; padding: 20px;">履歴がありません</div>';
+                    return;
+                }
+
+                const historyHTML = this.history.slice(-10).reverse().map(item => `
+                    <div class="history-item">
+                        <span class="history-expression">${item.expression}</span>
+                        <span class="history-result">${item.result}</span>
+                    </div>
+                `).join('');
+
+                historyList.innerHTML = historyHTML;
+            }
+
+            saveHistory() {
+                const dataToSave = {
+                    history: this.history,
+                    timestamp: new Date().toISOString()
+                };
+
+                if (this.currentAccount === 'guest') {
+                    localStorage.setItem('calculator_history', JSON.stringify(dataToSave));
+                } else {
+                    const accountRef = dataRef.child(this.currentAccount);
+                    accountRef.set(dataToSave);
+                }
+            }
+
+            loadHistoryFromLocalStorage() {
+                try {
+                    const stored = localStorage.getItem('calculator_history');
+                    if (stored) {
+                        const data = JSON.parse(stored);
+                        if (data.history) {
+                            this.history = data.history;
+                            this.renderHistory();
+                        }
+                    }
+                } catch (error) {
+                    console.error('LocalStorage読み込みエラー:', error);
+                }
+            }
+
+            loadHistoryFromFirebase() {
+                const accountRef = dataRef.child(this.currentAccount);
+                accountRef.on('value', (snapshot) => {
+                    const data = snapshot.val();
+                    if (data && data.history) {
+                        this.history = data.history;
+                        this.renderHistory();
+                    }
+                });
+            }
+
+            setupKeyboardEvents() {
+                document.addEventListener('keydown', (event) => {
+                    const key = event.key;
+                    
+                    if (key >= '0' && key <= '9') {
+                        this.inputNumber(key);
+                    } else if (key === '.') {
+                        this.inputDecimal();
+                    } else if (['+', '-', '*', '/'].includes(key)) {
+                        this.inputOperator(key);
+                    } else if (key === 'Enter' || key === '=') {
+                        event.preventDefault();
+                        this.calculate();
+                    } else if (key === 'Escape') {
+                        this.clearAll();
+                    } else if (key === 'Backspace') {
+                        this.clearEntry();
+                    }
+                });
+            }
+        }
+
+        // Calculator functions
+        function inputNumber(num) {
+            calculatorApp.inputNumber(num);
+        }
+
+        function inputOperator(op) {
+            calculatorApp.inputOperator(op);
+        }
+
+        function inputDecimal() {
+            calculatorApp.inputDecimal();
+        }
+
+        function calculate() {
+            calculatorApp.calculate();
+        }
+
+        function clearAll() {
+            calculatorApp.clearAll();
+        }
+
+        function clearEntry() {
+            calculatorApp.clearEntry();
+        }
+
+        // アプリケーション開始
+        let calculatorApp;
+        document.addEventListener('DOMContentLoaded', () => {
+            calculatorApp = new CalculatorApp();
+        });
+    </script>
+</body>
+</html>
