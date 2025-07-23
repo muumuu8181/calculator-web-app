@@ -28,6 +28,324 @@
             --todo-low: #4caf50;
         }
 
+        /* Tab Navigation */
+        .tab-navigation {
+            display: flex;
+            background-color: var(--surface-color);
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 15px 20px;
+            border: none;
+            background-color: transparent;
+            color: var(--tab-inactive);
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab-button:hover {
+            background-color: rgba(33, 150, 243, 0.1);
+            color: var(--tab-active);
+        }
+
+        .tab-button.active {
+            color: var(--tab-active);
+            border-bottom-color: var(--tab-active);
+            background-color: rgba(33, 150, 243, 0.05);
+        }
+
+        /* App Sections */
+        .app-section {
+            display: none;
+        }
+
+        .app-section.active {
+            display: block;
+        }
+
+        /* TODO App Styles */
+        .todo-container {
+            background-color: var(--surface-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+        }
+
+        .todo-input-section {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .todo-input {
+            flex: 1;
+            min-width: 200px;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+
+        .todo-priority {
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            min-width: 100px;
+        }
+
+        .todo-add-btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .todo-add-btn:hover {
+            background-color: #1976D2;
+        }
+
+        .todo-list {
+            space-y: 10px;
+        }
+
+        .todo-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background-color: var(--background-color);
+            border-radius: 6px;
+            border-left: 4px solid;
+            margin-bottom: 8px;
+            transition: transform 0.2s;
+            cursor: move;
+        }
+
+        .todo-item:hover {
+            transform: translateX(5px);
+        }
+
+        .todo-item.completed {
+            opacity: 0.6;
+            text-decoration: line-through;
+        }
+
+        .todo-item.high {
+            border-left-color: var(--todo-high);
+        }
+
+        .todo-item.medium {
+            border-left-color: var(--todo-medium);
+        }
+
+        .todo-item.low {
+            border-left-color: var(--todo-low);
+        }
+
+        .todo-checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .todo-text {
+            flex: 1;
+            font-size: 14px;
+        }
+
+        .todo-priority-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .todo-priority-badge.high {
+            background-color: var(--todo-high);
+        }
+
+        .todo-priority-badge.medium {
+            background-color: var(--todo-medium);
+        }
+
+        .todo-priority-badge.low {
+            background-color: var(--todo-low);
+        }
+
+        .todo-delete-btn {
+            padding: 4px 8px;
+            border: none;
+            border-radius: 4px;
+            background-color: #dc3545;
+            color: white;
+            font-size: 12px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .todo-delete-btn:hover {
+            background-color: #c82333;
+        }
+
+        .todo-drag-handle {
+            color: #999;
+            cursor: grab;
+            padding: 4px;
+        }
+
+        .todo-drag-handle:active {
+            cursor: grabbing;
+        }
+
+        /* Memo App Styles */
+        .memo-container {
+            background-color: var(--surface-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+        }
+
+        .memo-input-section {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .memo-title {
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            font-size: 16px;
+        }
+
+        .memo-content {
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            min-height: 100px;
+            font-family: inherit;
+            resize: vertical;
+        }
+
+        .memo-save-btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            align-self: flex-start;
+        }
+
+        .memo-save-btn:hover {
+            background-color: #1976D2;
+        }
+
+        .memo-list {
+            space-y: 10px;
+        }
+
+        .memo-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px;
+            background-color: var(--background-color);
+            border-radius: 6px;
+            border-left: 4px solid var(--primary-color);
+            margin-bottom: 12px;
+            transition: transform 0.2s;
+            cursor: move;
+        }
+
+        .memo-item:hover {
+            transform: translateX(5px);
+        }
+
+        .memo-drag-handle {
+            color: #999;
+            cursor: grab;
+            padding: 4px;
+            align-self: center;
+        }
+
+        .memo-drag-handle:active {
+            cursor: grabbing;
+        }
+
+        .memo-body {
+            flex: 1;
+        }
+
+        .memo-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .memo-title {
+            margin: 0;
+            font-size: 16px;
+            color: var(--text-color);
+        }
+
+        .memo-delete-btn {
+            padding: 4px 8px;
+            border: none;
+            border-radius: 4px;
+            background-color: #dc3545;
+            color: white;
+            font-size: 12px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .memo-delete-btn:hover {
+            background-color: #c82333;
+        }
+
+        .memo-content {
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 8px;
+            white-space: pre-wrap;
+        }
+
+        .memo-timestamp {
+            color: #666;
+            font-size: 12px;
+        }
+
         @media (prefers-color-scheme: dark) {
             :root {
                 --background-color: #121212;
@@ -997,6 +1315,101 @@
             </div>
         </div>
 
+        <!-- Tab Navigation -->
+        <div class="tab-navigation">
+            <button class="tab-button active" data-tab="todo">
+                📚 TODO
+            </button>
+            <button class="tab-button" data-tab="calculator">
+                🧮 電卓
+            </button>
+            <button class="tab-button" data-tab="memo">
+                📝 メモ
+            </button>
+        </div>
+
+        <!-- TODO App Section -->
+        <div class="app-section active" id="todo-section">
+            <div class="todo-container">
+                <h2 style="margin-bottom: 20px; color: var(--primary-color);">📚 TODOリスト</h2>
+                
+                <div class="todo-input-section">
+                    <input type="text" class="todo-input" id="todoInput" placeholder="新しいタスクを入力...">
+                    <select class="todo-priority" id="todoPriority">
+                        <option value="low">低</option>
+                        <option value="medium" selected>中</option>
+                        <option value="high">高</option>
+                    </select>
+                    <button class="todo-add-btn" onclick="addTodo()">追加</button>
+                </div>
+
+                <div class="todo-list" id="todoList">
+                    <!-- TODOアイテムがここに表示される -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Calculator App Section -->
+        <div class="app-section" id="calculator-section">
+            <div class="calculator-container">
+                <h2 style="margin-bottom: 20px; color: var(--primary-color);">🧮 電卓</h2>
+                
+                <div class="calculator">
+                    <div class="calculator-display" id="calculatorDisplay">0</div>
+                    
+                    <div class="calculator-buttons">
+                        <button class="calc-btn calc-clear" onclick="clearAll()">C</button>
+                        <button class="calc-btn calc-clear" onclick="clearEntry()">CE</button>
+                        <button class="calc-btn calc-operator" onclick="inputOperator('/')">÷</button>
+                        <button class="calc-btn calc-operator" onclick="inputOperator('*')">×</button>
+                        
+                        <button class="calc-btn calc-number" onclick="inputNumber('7')">7</button>
+                        <button class="calc-btn calc-number" onclick="inputNumber('8')">8</button>
+                        <button class="calc-btn calc-number" onclick="inputNumber('9')">9</button>
+                        <button class="calc-btn calc-operator" onclick="inputOperator('-')">-</button>
+                        
+                        <button class="calc-btn calc-number" onclick="inputNumber('4')">4</button>
+                        <button class="calc-btn calc-number" onclick="inputNumber('5')">5</button>
+                        <button class="calc-btn calc-number" onclick="inputNumber('6')">6</button>
+                        <button class="calc-btn calc-operator" onclick="inputOperator('+')">+</button>
+                        
+                        <button class="calc-btn calc-number" onclick="inputNumber('1')">1</button>
+                        <button class="calc-btn calc-number" onclick="inputNumber('2')">2</button>
+                        <button class="calc-btn calc-number" onclick="inputNumber('3')">3</button>
+                        <button class="calc-btn calc-equals" onclick="calculate()" rowspan="2">=</button>
+                        
+                        <button class="calc-btn calc-number calc-zero" onclick="inputNumber('0')">0</button>
+                        <button class="calc-btn calc-decimal" onclick="inputDecimal()">.</button>
+                    </div>
+                </div>
+                
+                <div class="calculator-history">
+                    <h3>計算履歴</h3>
+                    <button class="copy-history-btn" onclick="copyAllHistory()">📋 履歴をコピー</button>
+                    <div id="calculatorHistory" class="history-list">
+                        <!-- 計算履歴がここに表示される -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Memo App Section -->
+        <div class="app-section" id="memo-section">
+            <div class="memo-container">
+                <h2 style="margin-bottom: 20px; color: var(--primary-color);">📝 メモ</h2>
+                
+                <div class="memo-input-section">
+                    <input type="text" class="memo-title" id="memoTitle" placeholder="メモタイトル...">
+                    <textarea class="memo-content" id="memoContent" placeholder="メモ内容を入力..."></textarea>
+                    <button class="memo-save-btn" onclick="saveMemo()">保存</button>
+                </div>
+
+                <div class="memo-list" id="memoList">
+                    <!-- メモアイテムがここに表示される -->
+                </div>
+            </div>
+        </div>
+
         <main class="time-grid" id="timeGrid" style="display: none;">
             <section class="time-period" data-period="morning">
                 <h3>🌅 午前 (6:00-12:00)</h3>
@@ -1010,7 +1423,7 @@
 
             <section class="time-period" data-period="evening">
                 <h3>🌙 夜 (18:00-24:00)</h3>
-                <div class="records-list" id="evening-records"></div>
+                <div class="records-list" id="afternoon-records"></div>
             </section>
 
             <section class="time-period" data-period="night">
@@ -2861,17 +3274,24 @@ ${testText}`;
             }
 
             // Memo App Methods
-            saveMemo(content) {
-                const memoContent = content || document.getElementById('memoInput').value.trim();
+            saveMemo() {
+                const titleEl = document.getElementById('memoTitle');
+                const contentEl = document.getElementById('memoContent');
                 
-                if (!memoContent) {
-                    alert('メモ内容を入力してください');
+                if (!titleEl || !contentEl) return;
+                
+                const title = titleEl.value.trim();
+                const content = contentEl.value.trim();
+                
+                if (!title && !content) {
+                    alert('タイトルまたは内容を入力してください');
                     return;
                 }
 
                 const memo = {
                     id: generateUUID(),
-                    content: memoContent,
+                    title: title || '無題のメモ',
+                    content: content,
                     timestamp: new Date().toISOString()
                 };
 
@@ -2879,11 +3299,13 @@ ${testText}`;
                 this.renderMemos();
                 this.saveMemoData();
 
-                // Clear input
-                document.getElementById('memoInput').value = '';
+                // Clear inputs
+                titleEl.value = '';
+                contentEl.value = '';
                 
                 this.log('メモ保存', { 
-                    contentLength: memoContent.length,
+                    title: title, 
+                    contentLength: content.length,
                     totalMemos: this.memos.length 
                 });
             }
@@ -2911,12 +3333,16 @@ ${testText}`;
                 }
 
                 const memosHTML = this.memos.map(memo => `
-                    <div class="memo-item" data-memo-id="${memo.id}">
-                        <div class="memo-header">
-                            <span>${new Date(memo.timestamp).toLocaleString('ja-JP')}</span>
-                            <button class="memo-delete-btn" onclick="webApp.deleteMemo('${memo.id}')">削除</button>
+                    <div class="memo-item" data-memo-id="${memo.id}" draggable="true">
+                        <span class="memo-drag-handle">⋮⋮</span>
+                        <div class="memo-body">
+                            <div class="memo-header">
+                                <h4 class="memo-title">${memo.title || '無題のメモ'}</h4>
+                                <button class="memo-delete-btn" onclick="webApp.deleteMemo('${memo.id}')">削除</button>
+                            </div>
+                            <div class="memo-content">${memo.content}</div>
+                            <small class="memo-timestamp">${new Date(memo.timestamp).toLocaleString('ja-JP')}</small>
                         </div>
-                        <div class="memo-content">${memo.content}</div>
                     </div>
                 `).join('');
 
@@ -2961,6 +3387,31 @@ ${testText}`;
                 }
             }
 
+            saveMemoOrder() {
+                this.log('メモ順序の並び替えを保存中...');
+                
+                const memoList = document.getElementById('memoList');
+                if (!memoList) return;
+                
+                const memoItems = [...memoList.querySelectorAll('.memo-item')];
+                const orderedIds = memoItems.map(item => item.dataset.memoId);
+                
+                // memosの順序を変更
+                const reorderedMemos = [];
+                orderedIds.forEach(id => {
+                    const memo = this.memos.find(m => m.id === id);
+                    if (memo) {
+                        memo.order = reorderedMemos.length;
+                        reorderedMemos.push(memo);
+                    }
+                });
+                
+                this.memos = reorderedMemos;
+                this.saveMemoData();
+                
+                this.log('メモ順序保存完了', { newOrder: orderedIds });
+            }
+
             saveMemoDataToFirebase(dataToSave) {
                 this.log('メモデータをFirebaseに保存中...', { memoCount: this.memos.length });
                 
@@ -2996,6 +3447,15 @@ ${testText}`;
                 this.saveMemoData();
                 
                 this.log('メモ順序保存完了', { newOrder: orderedIds });
+            }
+
+            // UUID生成関数
+            generateUUID() {
+                return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                    const r = Math.random() * 16 | 0;
+                    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+                    return v.toString(16);
+                });
             }
         }
 
